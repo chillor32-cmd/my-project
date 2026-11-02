@@ -1,0 +1,34 @@
+# Power BI temporary and cache files
+*.tmp
+*.temp
+~*
+*.~*
+AutoRecovery/
+*.abf
+
+# Power BI Desktop local settings & cache
+.pbi/localSettings.json
+.pbi/editorSettings.json
+
+# Power BI Desktop large binaries (prefer .pbip for version control)
+# Uncomment the line below if you only want to commit .pbip metadata
+# *.pbix
+
+# Microsoft Office temporary files
+~$*.xlsx
+~$*.docx
+~$*.pptx
+
+# Python artifacts (for ETL / REST API scripts)
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+.env
+
+# OS-generated files
+.DS_Store
+Thumbs.db

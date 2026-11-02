@@ -1,0 +1,72 @@
+/*
+================================================================================
+  DAX Time Intelligence & Core KPI Measures
+================================================================================
+  Instructions:
+  1. Replace 'Fact_Sales'[SalesAmount] with your actual fact table & column.
+  2. Ensure you have marked Dim_Calendar as a Date Table.
+================================================================================
+*/
+
+-- 1. Base Measure
+Total Sales = 
+SUM('Fact_Sales'[SalesAmount])
+
+-- 2. Year-to-Date (YTD)
+Sales YTD = 
+TOTALYTD([Total Sales], 'Dim_Calendar'[Date])
+
+-- 3. Quarter-to-Date (QTD)
+Sales QTD = 
+TOTALQTD([Total Sales], 'Dim_Calendar'[Date])
+
+-- 4. Month-to-Date (MTD)
+Sales MTD = 
+TOTALMTD([Total Sales], 'Dim_Calendar'[Date])
+
+-- 5. Prior Year (PY) / Same Period Last Year (SPLY)
+Sales PY = 
+CALCULATE(
+    [Total Sales],
+    SAMEPERIODLASTYEAR('Dim_Calendar'[Date])
+)
+
+-- 6. Year-over-Year Growth ($)
+Sales YoY Growth = 
+VAR _Current = [Total Sales]
+VAR _Prior = [Sales PY]
+RETURN
+IF(
+    NOT ISBLANK(_Current) && NOT ISBLANK(_Prior),
+    _Current - _Prior,
+    BLANK()
+)
+
+-- 7. Year-over-Year Growth (%)
+Sales YoY Growth % = 
+DIVIDE([Sales YoY Growth], [Sales PY], BLANK())
+
+-- 8. Prior Month (PM)
+Sales PM = 
+CALCULATE(
+    [Total Sales],
+    PREVIOUSMONTH('Dim_Calendar'[Date])
+)
+
+-- 9. Month-over-Month Growth (%)
+Sales MoM Growth % = 
+DIVIDE([Total Sales] - [Sales PM], [Sales PM], BLANK())
+
+-- 10. Rolling 30-Day Total
+Sales Rolling 30D = 
+CALCULATE(
+    [Total Sales],
+    DATESINPERIOD('Dim_Calendar'[Date], MAX('Dim_Calendar'[Date]), -30, DAY)
+)
+
+-- 11. 3-Month Moving Average
+Sales 3M Moving Avg = 
+AVERAGEX(
+    DATESINPERIOD('Dim_Calendar'[Date], MAX('Dim_Calendar'[Date]), -3, MONTH),
+    [Total Sales]
+)

@@ -1,0 +1,50 @@
+/*
+================================================================================
+  DAX Dynamic Calendar Dimension (Date Table)
+================================================================================
+  Instructions:
+  1. In Power BI Desktop: Modeling tab -> New Table.
+  2. Paste this DAX script.
+  3. Mark this table as a Date Table (Right-click table -> "Mark as date table").
+  4. Ensure sorting columns are set (e.g., sort 'Month Name' by 'Month Number').
+================================================================================
+*/
+
+Dim_Calendar = 
+VAR _MinYear = 2020
+VAR _MaxYear = YEAR(TODAY()) + 1
+VAR _StartDate = DATE(_MinYear, 1, 1)
+VAR _EndDate = DATE(_MaxYear, 12, 31)
+
+RETURN
+ADDCOLUMNS (
+    CALENDAR(_StartDate, _EndDate),
+    "Year", YEAR([Date]),
+    "Quarter", "Q" & FORMAT([Date], "Q"),
+    "Quarter Number", QUARTER([Date]),
+    "Year Quarter", YEAR([Date]) & "-Q" & FORMAT([Date], "Q"),
+    "Year Quarter Sort", YEAR([Date]) * 10 + QUARTER([Date]),
+    "Month Number", MONTH([Date]),
+    "Month Name", FORMAT([Date], "mmmm"),
+    "Month Short", FORMAT([Date], "mmm"),
+    "Year Month", FORMAT([Date], "yyyy-mm"),
+    "Year Month Sort", YEAR([Date]) * 100 + MONTH([Date]),
+    "Month Year", FORMAT([Date], "mmm yyyy"),
+    "Day of Month", DAY([Date]),
+    "Day of Week Number", WEEKDAY([Date], 2), -- 1 = Monday, 7 = Sunday
+    "Day of Week Name", FORMAT([Date], "dddd"),
+    "Day of Week Short", FORMAT([Date], "ddd"),
+    "Is Weekend", IF(WEEKDAY([Date], 2) >= 6, "Weekend", "Weekday"),
+    "Week Number (ISO)", WEEKNUM([Date], 21),
+    "Week Year (ISO)", YEAR([Date]) * 100 + WEEKNUM([Date], 21),
+    
+    -- Fiscal Year (assuming Fiscal Year begins on July 1st)
+    "Fiscal Year", "FY" & IF(MONTH([Date]) >= 7, YEAR([Date]) + 1, YEAR([Date])),
+    "Fiscal Quarter", "FQ" & IF(MONTH([Date]) >= 7, QUARTER([Date]) - 2, QUARTER([Date]) + 2),
+    "Fiscal Month Number", IF(MONTH([Date]) >= 7, MONTH([Date]) - 6, MONTH([Date]) + 6),
+    
+    -- Relative Date Flags
+    "Is Current Year", IF(YEAR([Date]) = YEAR(TODAY()), 1, 0),
+    "Is Current Month", IF(YEAR([Date]) = YEAR(TODAY()) && MONTH([Date]) = MONTH(TODAY()), 1, 0),
+    "Is Future Date", IF([Date] > TODAY(), 1, 0)
+)
